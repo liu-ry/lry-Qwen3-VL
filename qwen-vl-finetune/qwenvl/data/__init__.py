@@ -26,7 +26,13 @@ VIDEOCHATGPT = {
     "data_path": "PATH_TO_VIDEOCHATGPT_DATA",
 }
 
+DATASET_NAME = {
+    "annotation_path": "/liury/src/git_lry/lry-Qwen3-VL/qwen-vl-finetune/demo/single_images.json",
+    "data_path": "/liury/src/git_lry/lry-Qwen3-VL/qwen-vl-finetune/",  # Can be empty if paths are in annotations
+}
+
 data_dict = {
+    "first_test": DATASET_NAME,
     "cambrian_737k": CAMBRIAN_737K,
     "cambrian_737k_pack": CAMBRIAN_737K_PACK,
     "mp_doc": MP_DOC,

@@ -41,6 +41,9 @@ from qwenvl.train.argument import (
 )
 from transformers import AutoProcessor, Trainer
 
+import os
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
+
 local_rank = None
 
 
@@ -89,7 +92,7 @@ def set_model(model_args, model):
         model.lm_head.requires_grad = False
 
 
-def train(attn_implementation="flash_attention_2"):
+def train(attn_implementation="eager"):
     global local_rank
 
     parser = transformers.HfArgumentParser(
@@ -179,7 +182,13 @@ def train(attn_implementation="flash_attention_2"):
     else:
         set_model(model_args, model)
 
-        if torch.distributed.get_rank() == 0:
+        # 检查分布式是否已初始化
+        if torch.distributed.is_available() and torch.distributed.is_initialized():
+            if torch.distributed.get_rank() == 0:
+                model.visual.print_trainable_parameters()
+                model.model.print_trainable_parameters()
+        else:
+            # 单 GPU 或非分布式训练
             model.visual.print_trainable_parameters()
             model.model.print_trainable_parameters()
     
@@ -203,4 +212,5 @@ def train(attn_implementation="flash_attention_2"):
 
 
 if __name__ == "__main__":
-    train(attn_implementation="flash_attention_2")
+    # Use standard attention to avoid GPU compatibility issues
+    train(attn_implementation="sdpa")
